@@ -59,7 +59,9 @@ resource "aws_instance" "web" {
 
   iam_instance_profile = aws_iam_instance_profile.ec2_profile.name
 
-  user_data = file("${path.module}/user-data.sh")
+  user_data = templatefile("${path.module}/user-data.sh.tftpl", {
+    docker_image = var.docker_image
+  })
 
   tags = {
     Name = var.instance_name

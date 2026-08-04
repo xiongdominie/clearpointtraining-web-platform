@@ -14,3 +14,7 @@ variable "instance_type" {
   type        = string
 }
 
+variable "docker_image" {
+  description = "Docker image to deploy from Amazon ECR"
+  type        = string
+}
