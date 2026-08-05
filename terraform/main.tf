@@ -48,7 +48,7 @@ resource "aws_security_group" "web" {
   }
 
   tags = {
-    Name = "acme-web-sg"
+    Name = "clearpointtraining-web-sg"
   }
 }
 
