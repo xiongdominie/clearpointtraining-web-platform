@@ -1,4 +1,4 @@
-#ClearPointTraining Web Platform
+# ClearPointTraining Web Platform
 
 A production-style cloud infrastructure project that deploys a Dockerized web application on AWS using Terraform.
 
@@ -13,7 +13,7 @@ We installed Docker on the EC2 instance and used it to package our HTML applicat
 The AWS CLI was installed on the EC2 instance to authenticate with AWS and securely pull the custom Docker image from Amazon ECR during deployment.
 
 ### Terraform
-Terraform was used as the Infrastructure as Code (IaC) tool. The project was organized into files such as `main.tf`, `iam.tf`, `backend.tf`, `outputs.tf`, `providers.tf`, `variables.tf`, and `terraform.tfvars` to provision and manage AWS infrastructure including the EC2 instance, Security Group, IAM Role, IAM Instance Profile, Amazon ECR, and the remote S3 backend.
+Terraform was used as the Infrastructure as Code (IaC) tool. The project was organized into files such as `main.tf`, `iam.tf`, `backend.tf`, `outputs.tf`, `providers.tf`, `variables.tf`, and `terraform.tfvars`. Terraform provisions and manages the EC2 instance, Security Group, IAM Role, IAM Instance Profile, and policy attachments. The configuration uses an existing Amazon ECR repository for the application image and an existing Amazon S3 bucket for remote Terraform state.
 
 ### Amazon EC2
 Amazon EC2 hosts the running Docker container. When the instance starts, it automatically pulls the custom Docker image from Amazon ECR and starts the web application.

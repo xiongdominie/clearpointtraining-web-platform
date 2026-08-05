@@ -13,4 +13,4 @@ aws ecr get-login-password --region us-east-1 | sudo docker login --username AWS
 
 sudo docker pull ${docker_image}
 
-sudo docker run -d --name webserver -p 80:80 ${docker_image}
+sudo docker run -d --name webserver --restart unless-stopped -p 80:80 ${docker_image}
