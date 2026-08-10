@@ -15,7 +15,7 @@ jobs:
 
         steps:
             - name: Checkout repository
-              uses: action/checkout@v4
+              uses: actions/checkout@v4
 
             - name: Configure AWS credentials
               uses: aws-actions/configure-aws-credentials@v6
@@ -47,6 +47,7 @@ jobs:
                   --instance-ids "i-051b95331db1365fe" \
                   --document-name "AWS-RunShellScript" \
                   --parameters 'commands=[
+                    "aws ecr get-login-password --region us-east-1 | sudo docker login --username AWS --password-stdin 509399624719.dkr.ecr.us-east-1.amazonaws.com",
                     "sudo docker pull 509399624719.dkr.ecr.us-east-1.amazonaws.com/project1-website:v4",
                     "sudo docker rm -f webserver-v4 || true",
                     "sudo docker run -d --name webserver-v4 --restart unless-stopped -p 80:80 509399624719.dkr.ecr.us-east-1.amazonaws.com/project1-website:v4"
