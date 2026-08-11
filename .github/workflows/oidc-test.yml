@@ -12,11 +12,20 @@ jobs:
         runs-on: ubuntu-latest
 
         steps:
-            - name: Configure AWS Credentials
-              uses: aws-actions/configure-aws-credentials@v6
-              with:
-                role-to-assume: arn:aws:iam::509399624719:role/clearpointtraining-cicd-role
-                aws-region: us-east-1
+            - name: Request GitHub OIDC token
+              run: |
+                    RESPONSE=$(curl -s \
+                        -H "Authorization: bearer $ACTIONS_ID_TOKEN_REQUEST_TOKEN" \
+                        "$ACTIONS_ID_TOKEN_REQUEST_URL&audience=sts.amazonaws.com")
 
-            - name: Verify AWS Identity
-              run: aws sts get-caller-identity
+                    TOKEN=$(echo "$RESPONSE" | jq -r '.value')
+
+                    echo "OIDC_TOKEN=$TOKEN" >> "$GITHUB_ENV"
+
+            - name: Call AWS STS directly
+              run: |
+                    aws sts assume-role-with-web-identity \
+                     --role-arn arn:aws:iam::509399624719:role/clearpointtraining-cicd-role \
+                     --role-session-name oidc-direct-test \
+                     --web-identity-token "$OIDC_TOKEN" \
+                    --duration-seconds 900
