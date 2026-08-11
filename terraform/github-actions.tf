@@ -33,7 +33,7 @@ data "aws_iam_policy_document" "github_actions_assume_role" {
       variable = "token.actions.githubusercontent.com:sub"
 
       values = [
-        "repo:xiongdominie/clearpointtraining-web-platform:ref:refs/heads/main"
+        "repo:xiongdominie@257389628/clearpointtraining-web-platform@1315388341:ref:refs/heads/main"
       ]
     }
 
