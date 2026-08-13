@@ -45,7 +45,7 @@ jobs:
             - name: Deploy image to EC2
               run: |
                 aws ssm send-command \
-                --instance-ids "${{ env.EC2_INSTANCE_ID }}" \ 
+                --instance-ids "${{ env.EC2_INSTANCE_ID }}" \
                 --document-name "AWS-RunShellScript" \
                 --parameters 'commands=[
                   "aws ecr get-login-password --region ${{ env.AWS_REGION }} | sudo docker login --username AWS --password-stdin ${{ steps.login-ecr.outputs.registry }}",
