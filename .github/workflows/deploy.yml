@@ -9,6 +9,12 @@ permissions:
     id-token: write
     contents: read
 
+env:
+  AWS_REGION: us-east-1
+  ECR_REPOSITORY: project1-website
+  IMAGE_TAG: ${{github.sha}}
+  EC2_INSTANCE_ID: i-051b95331db1365fe
+
 jobs:
     build-and-deploy:
         runs-on: ubuntu-latest
@@ -21,28 +27,29 @@ jobs:
               uses: aws-actions/configure-aws-credentials@v6
               with:
                 role-to-assume: arn:aws:iam::509399624719:role/clearpointtraining-cicd-role
-                aws-region: us-east-1
+                aws-region: ${{env.AWS_REGION}}
 
             - name: Login to Amazon ECR
+              id: login-ecr
               uses: aws-actions/amazon-ecr-login@v2
 
             - name: Build Docker image
-              run: docker build -t project1-website:v4 ./docker
+              run: docker build -t ${{env.ECR_REPOSITORY}}:${{env.IMAGE_TAG}} ./docker
 
             - name: Tag Docker image for ECR
-              run: docker tag project1-website:v4 509399624719.dkr.ecr.us-east-1.amazonaws.com/project1-website:v4
+              run: docker tag ${{env.ECR_REPOSITORY}}:${{env.IMAGE_TAG}} ${{steps.login-ecr.outputs.registry}} ${{env.ECR_REPOSITORY}}:${{env.IMAGE_TAG}}
 
             - name: Push Docker image to ECR
-              run: docker push 509399624719.dkr.ecr.us-east-1.amazonaws.com/project1-website:v4
+              run: docker push ${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPOSITORY }}:${{ env.IMAGE_TAG }}
 
             - name: Deploy image to EC2
               run: |
                 aws ssm send-command \
-                  --instance-ids "i-051b95331db1365fe" \
-                  --document-name "AWS-RunShellScript" \
-                  --parameters 'commands=[
-                    "aws ecr get-login-password --region us-east-1 | sudo docker login --username AWS --password-stdin 509399624719.dkr.ecr.us-east-1.amazonaws.com",
-                    "sudo docker pull 509399624719.dkr.ecr.us-east-1.amazonaws.com/project1-website:v4",
-                    "sudo docker rm -f webserver-v4 || true",
-                    "sudo docker run -d --name webserver-v4 --restart unless-stopped -p 80:80 509399624719.dkr.ecr.us-east-1.amazonaws.com/project1-website:v4"
+                --instance-ids "${{ env.EC2_INSTANCE_ID }}" \ 
+                --document-name "AWS-RunShellScript" \
+                --parameters 'commands=[
+                  "aws ecr get-login-password --region ${{ env.AWS_REGION }} | sudo docker login --username AWS --password-stdin ${{ steps.login-ecr.outputs.registry }}",
+                  "sudo docker pull ${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPOSITORY }}:${{ env.IMAGE_TAG }}",
+                  "sudo docker rm -f webserver || true",
+                  "sudo docker run -d --name webserver --restart unless-stopped -p 80:80 ${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPOSITORY }}:${{ env.IMAGE_TAG }}"
                 ]'
